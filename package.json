@@ -6,9 +6,14 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "setup-production": "npm run install-client && npm run build-client && npm install",
+    "install-dependencies": "npm run install-client && npm install",
+    "install-client": "cd client && npm install",
+    "build-client": "cd client && npm run build",
     "start": "npm run build && node dist/index.js",
     "dev": "npx nodemon",
-    "build": "tsc"
+    "client-dev": "npm run dev --prefix client",
+    "build": "rimraf ./dist && tsc"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
