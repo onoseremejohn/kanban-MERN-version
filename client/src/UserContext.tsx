@@ -30,7 +30,7 @@ const initialState: UserStateType = {
   showAlert: false,
   alertText: "",
   alertType: "",
-  testMode: false,
+  signupSuccess: false,
 };
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -53,6 +53,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: SETUP_USER_BEGIN });
     try {
       const { data } = await axios.post(`/api/auth/${endPoint}`, currentUser);
+      if (endPoint === "register") {
+        dispatch({
+          type: SETUP_USER_SUCCESS,
+          payload: { user: null, alertText, endPoint },
+        });
+        clearAlert();
+        return;
+      }
       const { user, token } = data as unknown as {
         user: { name: string };
         token: string;
@@ -66,7 +74,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     } catch (error: any) {
       dispatch({
         type: SETUP_USER_ERROR,
-        payload: { msg: error.response.data.msg },
+        payload: { msg: error.response.data?.msg || "Error" },
       });
     }
     clearAlert();

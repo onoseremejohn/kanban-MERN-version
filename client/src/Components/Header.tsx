@@ -17,6 +17,7 @@ const Header = () => {
     showBoardMenu,
     editDeleteMenu,
     theme,
+    isLoading,
     editDeleteToggle = () => {},
     openBoardMenu = () => {},
     modify = () => {},
@@ -67,7 +68,9 @@ const Header = () => {
                 e.stopPropagation();
               }}
             >
-              {currentBoard && currentBoard.length > 30
+              {isLoading
+                ? "Loading..."
+                : currentBoard && currentBoard.length > 30
                 ? `${currentBoard.substring(0, 30)}...`
                 : currentBoard || "No board Found"}
               {"  "}
@@ -76,7 +79,7 @@ const Header = () => {
               </span>
             </button>
             <h1 className="board font-bold">
-              {currentBoard || "No board Found"}
+              {isLoading ? "Loading..." : currentBoard || "No board Found"}
             </h1>
           </div>
           {boards && boards.length > 0 && (

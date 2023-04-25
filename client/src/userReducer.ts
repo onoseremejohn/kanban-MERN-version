@@ -33,15 +33,17 @@ const reducer: UserReducerType<UserStateType, UserActionType> = (
         showAlert: false,
         alertType: "",
         alertText: "",
+        isLoading: false,
       };
     }
     case SETUP_USER_BEGIN: {
       return { ...state, isLoading: true };
     }
     case SETUP_USER_SUCCESS: {
-      const { user, alertText } = action.payload as {
-        user: UserTokenType;
+      const { user, alertText, endPoint } = action.payload as {
+        user: UserTokenType | null;
         alertText: string;
+        endPoint?: "login" | "register";
       };
       return {
         ...state,
@@ -50,6 +52,7 @@ const reducer: UserReducerType<UserStateType, UserActionType> = (
         showAlert: true,
         alertText,
         alertType: "success",
+        signupSuccess: endPoint === "register",
       };
     }
     case SETUP_USER_ERROR: {

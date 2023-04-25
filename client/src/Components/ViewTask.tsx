@@ -1,9 +1,18 @@
 import styled from "styled-components";
 import { Close, MenuIcon, ChevronDown } from "../assets/Icons";
-import { forwardRef, useState, useRef, MouseEvent, TouchEvent } from "react";
+import {
+  forwardRef,
+  useState,
+  useRef,
+  MouseEvent,
+  TouchEvent,
+  RefObject,
+  useEffect,
+} from "react";
 import { useGlobalContext } from "../AppContext";
 import { statusName, countCompletedSubtasks } from "../helpers";
 const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
+  const divRef = ref as RefObject<HTMLDivElement>;
   const showRef = useRef<HTMLDivElement>(null);
   const modifyRef = useRef<HTMLDivElement>(null);
   const {
@@ -15,12 +24,15 @@ const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
     changeStatus = () => {},
     modify = () => {},
   } = useGlobalContext() || {};
-  if (!selectedTask?.task) return null;
+  if (!selectedTask?.task || !ref) return null;
   const { title, description, status, subtasks } = selectedTask.task;
   const { statusIds } = selectedTask;
   const [showStatuses, setShowStatuses] = useState(false);
   const [modifyTask, setmodifyTask] = useState(false);
-  const toggleShow = () => setShowStatuses((s) => !s);
+  const [height, setHeight] = useState<number>(0);
+  const toggleShow = () => {
+    setShowStatuses((s) => !s);
+  };
   const toggleModify = () => setmodifyTask((s) => !s);
   const closeShow = (e: MouseEvent | TouchEvent) => {
     if (showStatuses && !showRef.current?.contains(e.target as Node))
@@ -28,8 +40,20 @@ const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
     if (modifyTask && !modifyRef.current?.contains(e.target as Node))
       setmodifyTask(false);
   };
+
+  useEffect(() => {
+    setHeight(
+      (divRef.current?.clientHeight ?? 0) + (showRef.current?.clientHeight ?? 0)
+    );
+  }, [showStatuses]);
   return (
-    <Wrapper ref={ref} onClick={closeShow}>
+    <Wrapper
+      style={{
+        height: showStatuses ? `${height}px` : "auto",
+      }}
+      ref={divRef}
+      onClick={closeShow}
+    >
       <button
         type="button"
         className="close"
@@ -135,7 +159,6 @@ export const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.white};
   color: ${({ theme }) => theme.modalText};
   position: relative;
-  height: auto;
   max-height: 80vh;
   width: 85vw;
   max-width: 500px;
@@ -236,7 +259,7 @@ export const Wrapper = styled.div`
       padding: 0.5em 1em;
       font-size: larger;
     }
-    margin-bottom: 2em;
+    /* margin-bottom: 2em; */
   }
   .modifyTask {
     top: 105%;

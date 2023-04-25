@@ -10,6 +10,7 @@ import {
   ResponderProvided,
   DragUpdate,
 } from "@hello-pangea/dnd";
+import Loading from "./Loading";
 
 const MainBoard = () => {
   const WrapperRef = useRef<HTMLElement | null>(null);
@@ -21,6 +22,8 @@ const MainBoard = () => {
     sameColumnReorder = () => {},
     diffColumnReorder = () => {},
     reOrderColumns = () => {},
+    isLoading,
+    isError,
   } = useGlobalContext() || {};
   const data = boards?.find((board) => board.id === currentBoardId);
 
@@ -108,6 +111,9 @@ const MainBoard = () => {
     }
     provided.announce(message);
   };
+
+  if (isLoading) return <Loading />;
+  if (isError) return <h2 className="absolute-center">There was an error</h2>;
 
   return (
     <DragDropContext

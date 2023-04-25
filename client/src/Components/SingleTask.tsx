@@ -17,7 +17,7 @@ const SingleTask = ({
 }: TasksType) => {
   const { openTask = () => {} } = useGlobalContext() || {};
   return (
-    <Draggable draggableId={taskId.toString()} index={index}>
+    <Draggable draggableId={taskId} index={index}>
       {(provided, snapshot) => (
         <Wrapper
           aria-label="view task"

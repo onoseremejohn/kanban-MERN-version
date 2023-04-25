@@ -87,6 +87,10 @@ export interface StateType {
   sameColumnReorder?(a: string, b: string, c: number): void;
   diffColumnReorder?(a: string, b: string, c: string, d: number): void;
   reOrderColumns?(a: string, b: number): void;
+  isLoading: boolean;
+  tasksLoaded: boolean;
+  hasUnsavedChanges: boolean;
+  isError: boolean;
 }
 
 export type ReducerType<S, A> = (state: S, action: A) => StateType;
@@ -118,7 +122,7 @@ export interface UserStateType {
   isLoading: boolean;
   showAlert: boolean;
   alertText: string;
-  testMode: boolean;
+  signupSuccess: boolean;
   alertType: "danger" | "success" | "";
   displayAlert?(): void;
   clearAlert?(): void;
@@ -131,7 +135,13 @@ export type UserReducerType<S, A> = (state: S, action: A) => UserStateType;
 
 export interface UserActionType {
   type: string;
-  payload?: { msg: string } | { user: UserTokenType; alertText: string };
+  payload?:
+    | { msg: string }
+    | {
+        user: UserTokenType | null;
+        alertText: string;
+        endPoint?: "login" | "register";
+      };
 }
 
 export interface UserTokenType {
@@ -141,6 +151,6 @@ export interface UserTokenType {
 
 interface setupUserPayload {
   currentUser: { name: string; email: string; password: string };
-  endPoint: string;
+  endPoint: "login" | "register";
   alertText: string;
 }

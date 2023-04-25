@@ -30,7 +30,7 @@ app.use(express.static(resolve(dirname(__dirname), "./client/dist")));
 
 // log(dirname(__dirname));
 app.set("trust proxy", 1);
-app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
+// app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(express.json());
 app.use(cors());
 app.use(helmet());

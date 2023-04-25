@@ -18,6 +18,7 @@ const Register = () => {
     setupUser = () => {},
     user,
     isLoading,
+    signupSuccess,
   } = useUserContext() || {};
   const { theme } = useGlobalContext() || {};
   const navigate = useNavigate();
@@ -60,12 +61,15 @@ const Register = () => {
     if (user) {
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 1000);
     }
-  }, [user]);
+    if (signupSuccess) {
+      toggleAction();
+    }
+  }, [user, signupSuccess]);
 
   return (
-    <Wrapper>
+    <Wrapper signupSuccess={signupSuccess}>
       <form onSubmit={handleSubmit}>
         {theme === "light" ? <LogoDark /> : <LogoLight />}
         <h3 style={{ textAlign: "center", marginTop: "0.5em" }}>{action}</h3>
@@ -82,52 +86,58 @@ const Register = () => {
             />
           </div>
         )}
-        <div className="form-control">
-          <label htmlFor="email">Email</label>
-          <input
-            value={values.email}
-            type="text"
-            id="email"
-            name="email"
-            onChange={handleChange}
-          />
-        </div>
-        <div className="form-control">
-          <label htmlFor="password">Password</label>
-          <input
-            value={values.password}
-            type="password"
-            id="password"
-            name="password"
-            onChange={handleChange}
-          />
-        </div>
-        <button className="submit" type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <img className="spin" src={spin} alt="loading..." />
-          ) : action === "login" ? (
-            "Login"
-          ) : (
-            "Sign up"
-          )}
-        </button>
-        <p>
-          {action === "login" ? "Not a member yet?" : "Already a member?"}
-          <button
-            onClick={toggleAction}
-            type="button"
-            disabled={isLoading}
-            className="action"
-          >
-            <p> {action === "login" ? "register" : "login"}</p>
+        <>
+          <div className="form-control">
+            <label htmlFor="email">Email</label>
+            <input
+              value={values.email}
+              type="text"
+              id="email"
+              name="email"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-control">
+            <label htmlFor="password">Password</label>
+            <input
+              value={values.password}
+              type="password"
+              id="password"
+              name="password"
+              onChange={handleChange}
+            />
+          </div>
+          <button className="submit" type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <img className="spin" src={spin} alt="loading..." />
+            ) : action === "login" ? (
+              "Login"
+            ) : (
+              "Sign up"
+            )}
           </button>
-        </p>
+          <p>
+            {action === "login" ? "Not a member yet?" : "Already a member?"}
+            <button
+              onClick={toggleAction}
+              type="button"
+              disabled={isLoading}
+              className="action"
+            >
+              <p> {action === "login" ? "register" : "login"}</p>
+            </button>
+          </p>
+        </>
       </form>
     </Wrapper>
   );
 };
 
-const Wrapper = styled.main`
+interface WrapperProps {
+  signupSuccess?: boolean;
+}
+
+const Wrapper = styled.main<WrapperProps>`
   display: grid;
   place-content: center;
   min-height: 100vh;
@@ -155,6 +165,7 @@ const Wrapper = styled.main`
     padding: 2rem 2.5rem;
     transition: all 0.3s ease-in-out;
     transition: var(--transition);
+    min-height: ${({ signupSuccess }) => (signupSuccess ? "50vh" : "")};
   }
   .form-control {
     margin-bottom: 1em;

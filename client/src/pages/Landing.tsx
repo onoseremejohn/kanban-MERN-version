@@ -24,7 +24,7 @@ const Landing = () => {
               interface, it’s never been easier to stay on top of your to-do
               list and keep your projects organized
             </p>
-            <Link to="/register" className="btn btn-hero">
+            <Link to="/register" className="register btn">
               Login/Register
             </Link>
           </div>
@@ -56,7 +56,7 @@ const Wrapper = styled.main`
   h1 {
     font-weight: 700;
     span {
-      color: red;
+      color: var(--purple);
     }
   }
   p {
@@ -65,6 +65,10 @@ const Wrapper = styled.main`
   }
   .main-img {
     display: none;
+  }
+  .register {
+    background-color: ${({ theme }) => theme.borderLine};
+    margin-top: 1em;
   }
   @media (min-width: 992px) {
     .page {

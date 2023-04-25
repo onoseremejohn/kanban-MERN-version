@@ -33,6 +33,11 @@ const taskSchema = new Schema({
     type: String,
     required: [true, "task must have a statusId"],
   },
+  status: {
+    type: String,
+    required: [true, "task must have a status"],
+    maxlength: 50,
+  },
   subtasks: [subtaskSchema],
 });
 

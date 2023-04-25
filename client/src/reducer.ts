@@ -37,6 +37,8 @@ import {
   SAMECOLUMNREORDER,
   DIFFCOLUMNREORDER,
   REORDERCOLUMNS,
+  FETCHBOARDSTART,
+  FETCHBOARDERROR,
 } from "./actions";
 import { statusName, getColumn } from "./helpers";
 
@@ -45,6 +47,12 @@ const reducer: ReducerType<StateType, ActionType> = (
   action: ActionType
 ) => {
   switch (action.type) {
+    case FETCHBOARDSTART: {
+      return { ...state, isLoading: true, isError: false };
+    }
+    case FETCHBOARDERROR: {
+      return { ...state, isLoading: false, isError: true };
+    }
     case LOAD: {
       let { boards, theme, currentBoardId } = action.payload as StorageType;
       const boardIds = boards.map((b) => b.id);
@@ -54,6 +62,9 @@ const reducer: ReducerType<StateType, ActionType> = (
         boards,
         boardIds,
         currentBoardId: currentBoardId || boardIds[0],
+        tasksLoaded: true,
+        isLoading: false,
+        isError: false,
       };
     }
     case OPENBOARDMENU: {
@@ -76,12 +87,12 @@ const reducer: ReducerType<StateType, ActionType> = (
       let { currentBoardId } = state;
       const id = action.payload as string;
       currentBoardId = id;
-      return { ...state, currentBoardId };
+      return { ...state, currentBoardId, hasUnsavedChanges: true };
     }
     case VIEWTASKMODAL: {
       const { boards, currentBoardId } = state;
       const { columnId, taskId } = action.payload as ViewTaskPayload;
-      const board = boards?.find((board) => board.id === currentBoardId);
+      const board = boards.find((board) => board.id === currentBoardId);
       const statusIds = board?.columns.map((c) => c.id);
       const column = board?.columns.find((c) => c.id === columnId);
       const task = column?.tasks?.find((t) => t.id === taskId);
@@ -131,6 +142,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         ...state,
         selectedTask: { ...state.selectedTask, task: newTask },
         boards: newBoards,
+        hasUnsavedChanges: true,
       };
     }
     case CHANGESTATUS: {
@@ -166,6 +178,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         ...state,
         selectedTask: { ...state.selectedTask, task: newTask, columnId: id },
         boards: newBoards,
+        hasUnsavedChanges: true,
       };
     }
     case MODIFYTASKMODAL: {
@@ -235,7 +248,7 @@ const reducer: ReducerType<StateType, ActionType> = (
           else return b;
         });
       }
-      return { ...state, boards: newBoards };
+      return { ...state, boards: newBoards, hasUnsavedChanges: true };
     }
     case FILTERDELETETASK: {
       const id = action.payload as string;
@@ -261,7 +274,7 @@ const reducer: ReducerType<StateType, ActionType> = (
           };
         else return b;
       });
-      return { ...state, boards: newBoards };
+      return { ...state, boards: newBoards, hasUnsavedChanges: true };
     }
     case EDITDELETEMENUTOGGLE: {
       const { editDeleteMenu } = state;
@@ -278,6 +291,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         boards: newBoards,
         currentBoardId: newBoards[0]?.id || "",
         boardIds,
+        hasUnsavedChanges: true,
       };
     }
     case OPENADDNEWBOARDMODAL: {
@@ -300,6 +314,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         boards: newBoards,
         currentBoardId: board.id,
         boardIds,
+        hasUnsavedChanges: true,
       };
     }
     case OPENEDITBOARDMODAL: {
@@ -326,6 +341,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         boards: newBoards,
         currentBoardId: board.id,
         boardIds,
+        hasUnsavedChanges: true,
       };
     }
     case ADDNEWCOLUMNMODAL: {
@@ -341,7 +357,7 @@ const reducer: ReducerType<StateType, ActionType> = (
     case TOGGLETHEME: {
       let { theme } = state;
       theme = theme === "light" ? "dark" : "light";
-      return { ...state, theme };
+      return { ...state, theme, hasUnsavedChanges: true };
     }
     case SIDEBAR: {
       let val = action.payload as "open" | "close";
@@ -355,9 +371,9 @@ const reducer: ReducerType<StateType, ActionType> = (
       const column = getColumn(boards, currentBoardId, columnId);
       if (!column) return state;
       let tasks = [...column.tasks];
-      const movedTask = column.tasks.find((t) => t.id.toString() === taskId);
+      const movedTask = column.tasks.find((t) => t.id === taskId);
       if (!movedTask) return state;
-      tasks = tasks.filter((t) => t.id.toString() !== taskId);
+      tasks = tasks.filter((t) => t.id !== taskId);
       tasks.splice(destinationIndex, 0, movedTask);
       let newColumn: ColumnType;
       newColumn = { ...column, tasks: [...tasks] };
@@ -367,13 +383,13 @@ const reducer: ReducerType<StateType, ActionType> = (
           return {
             ...b,
             columns: b.columns.map((c) => {
-              if (c.id.toString() === columnId) return newColumn;
+              if (c.id === columnId) return newColumn;
               return c;
             }),
           };
         return b;
       });
-      return { ...state, boards: newBoards };
+      return { ...state, boards: newBoards, hasUnsavedChanges: true };
     }
 
     case DIFFCOLUMNREORDER: {
@@ -385,10 +401,10 @@ const reducer: ReducerType<StateType, ActionType> = (
       if (!oldColumn || !newColumn) return state;
       let filteredOldColumn: ColumnType = {
         ...oldColumn,
-        tasks: oldColumn.tasks.filter((t) => t.id.toString() !== taskId),
+        tasks: oldColumn.tasks.filter((t) => t.id !== taskId),
       };
       let tasks = [...newColumn.tasks];
-      let movedTask = oldColumn.tasks.find((t) => t.id.toString() === taskId);
+      let movedTask = oldColumn.tasks.find((t) => t.id === taskId);
       const newStatusName = statusName(boards, currentBoardId, destColId);
       if (!movedTask || !newStatusName) return state;
       movedTask = { ...movedTask, status: newStatusName, statusId: destColId };
@@ -408,7 +424,7 @@ const reducer: ReducerType<StateType, ActionType> = (
           };
         return b;
       });
-      return { ...state, boards: newBoards };
+      return { ...state, boards: newBoards, hasUnsavedChanges: true };
     }
     case REORDERCOLUMNS: {
       const { boards, currentBoardId } = state;
@@ -424,7 +440,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         if (b.id === currentBoardId) return { ...b, columns: newColumns };
         return b;
       });
-      return { ...state, boards: newBoards };
+      return { ...state, boards: newBoards, hasUnsavedChanges: true };
     }
     default:
       throw new Error(`No Matching "${action.type}" - action type`);

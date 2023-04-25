@@ -9,7 +9,7 @@ interface Save extends Main {
 
 const getBoard: Controller = async (req, res) => {
   const board = await Board.findOne({ createdBy: req.user?.userId }).select(
-    "-createdBy"
+    "-createdBy -_id"
   );
   if (!board) {
     const save: Save = { ...defaultBoard };

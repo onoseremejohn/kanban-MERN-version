@@ -22,7 +22,7 @@ import {
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import reducer from "./reducer";
 import { useUserContext } from "./UserContext";
-import { debounce } from "lodash";
+// import { debounce } from "lodash";
 import {
   LOAD,
   OPENBOARDMENU,
@@ -47,6 +47,8 @@ import {
   SAMECOLUMNREORDER,
   DIFFCOLUMNREORDER,
   REORDERCOLUMNS,
+  FETCHBOARDSTART,
+  FETCHBOARDERROR,
 } from "./actions";
 import { StateType, TasksType, BoardType } from "./types";
 const lightTheme = {
@@ -99,21 +101,26 @@ const initialState: StateType = {
   editOrAddNewBoardModal: false,
   editBoardFlag: false,
   addNewColumnFlag: false,
-  sidebarOpen: true,
+  sidebarOpen: false,
+  isLoading: true,
+  isError: false,
+  tasksLoaded: false,
+  hasUnsavedChanges: false,
 };
 
 const AppContext = createContext<StateType | null>(null);
 
 const AppProvider = ({ children }: { children: ReactNode }) => {
-  const { testMode, authFetch, user } = useUserContext() || {};
+  const { authFetch, user } = useUserContext() || {};
   const [state, dispatch] = useReducer(reducer, initialState);
   const isLight = state.theme === "light";
 
   useEffect(() => {
-    const getDefaultTasks = debounce(async () => {
-      if (!authFetch || !user) return;
+    if (!authFetch || !user) return;
+    const getTasks = async () => {
+      dispatch({ type: FETCHBOARDSTART });
       try {
-        const { data } = await authFetch.get("/tasks");
+        const { data } = await authFetch("/tasks");
         dispatch({
           type: LOAD,
           payload: {
@@ -125,19 +132,19 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("theme", data.theme);
       } catch (error) {
         // do something
-        console.log(error);
+        dispatch({ type: FETCHBOARDERROR });
       }
-    }, 1000);
-
-    getDefaultTasks();
-    // Cleanup function to cancel any pending debounced calls
-    return () => {
-      getDefaultTasks.cancel();
     };
+
+    getTasks();
   }, [user]);
   useEffect(() => {
-    const saveChanges = debounce(async function () {
-      if (!authFetch || !user) return;
+    if (!authFetch || !user || !state.tasksLoaded || !state.hasUnsavedChanges)
+      return;
+    let timeoutId: NodeJS.Timeout;
+    const MAX_RETRIES = 3;
+    let retries = 0;
+    const saveChanges = async function () {
       const update = {
         theme: state.theme,
         boards: state.boards,
@@ -148,21 +155,33 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("theme", update.theme);
       } catch (error) {
         console.log(error);
+        if (retries < MAX_RETRIES) {
+          retries++;
+          console.log(`Retring to save changes. Retry count : ${retries}`);
+          timeoutId = setTimeout(saveChanges, 1500 * retries); // exponential backoff strategy
+        } else {
+          console.log("Max retries reached. Aborting patch request");
+        }
       }
-    }, 2000);
+    };
     saveChanges();
 
     return () => {
-      // Cleanup function to cancel any pending debounced calls
-      saveChanges.cancel();
+      clearTimeout(timeoutId);
     };
-
-    // if (testMode) return;
-  }, [state.theme, state.boards, state.currentBoardId]);
+  }, [
+    state.tasksLoaded,
+    state.hasUnsavedChanges,
+    state.theme,
+    state.boards,
+    state.currentBoardId,
+  ]);
   const openBoardMenu = () => dispatch({ type: OPENBOARDMENU });
   const closeModal = () => dispatch({ type: CLOSEMODAL });
-  const selectBoard = (id: string) =>
+  const selectBoard = (id: string) => {
+    if (id === state.currentBoardId) return;
     dispatch({ type: SELECTBOARD, payload: id });
+  };
   const openTask = (columnId: string, taskId: string) =>
     dispatch({ type: VIEWTASKMODAL, payload: { columnId, taskId } });
   const toggleSubtask = (e: ChangeEvent<HTMLInputElement>, id: string) => {
