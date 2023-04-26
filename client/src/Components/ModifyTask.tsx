@@ -12,14 +12,12 @@ import { Close, ChevronDown } from "../assets/Icons";
 import { nanoid } from "nanoid";
 import { TasksType } from "../types";
 import { statusName } from "../helpers";
+import moment from "moment";
 
 interface SubtasksType
-  extends Array<{
-    title: string;
-    isCompleted: boolean;
-    id: string;
-    error?: boolean;
-  }> {}
+  extends Pick<TasksType["subtasks"][number], "title" | "isCompleted" | "id"> {
+  error?: boolean;
+}
 
 const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
   const showRef = useRef<HTMLDivElement>(null);
@@ -41,37 +39,61 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
   const closeShow = (e: MouseEvent<HTMLDivElement>) => {
     if (show && !showRef.current?.contains(e.target as Node)) setShow(false);
   };
-  const newSubtask: SubtasksType = [
+  const newSubtask: SubtasksType[] = [
     {
       id: nanoid(),
       title: "",
       isCompleted: false,
     },
   ];
+  const newAssignee: TasksType["assignedTo"] = [];
 
   const [tempStatusId, setTempStatusId] = useState(columnId);
 
+  interface Task {
+    title: string;
+    description: string;
+    createdOn: Date | string;
+    due: Date | string;
+  }
+
   const [info, setInfo] = task
-    ? useState({ title: task.title, description: task.description })
-    : useState({ title: "", description: "" });
+    ? useState<Task>({
+        title: task.title,
+        description: task.description,
+        createdOn: task.createdOn,
+        due: task.due,
+      })
+    : useState<Task>({
+        title: "",
+        description: "",
+        createdOn: new Date().toISOString(),
+        due: "",
+      });
+
+  const today = new Date();
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => {
     const name = e.target.name;
     const value = e.target.value;
-    if (/^\s+$/.test(value)) return;
-    setInfo({ ...info, [name]: value });
-    if (name === "title" && value === "") setTitleError(true);
-    else if (name === "title" && value !== "") setTitleError(false);
+    if (name !== "createdOn" && name !== "due") {
+      if (/^\s+$/.test(value)) return;
+      setInfo({ ...info, [name]: value });
+      if (name === "title" && value === "") setTitleError(true);
+      else if (name === "title" && value !== "") setTitleError(false);
+    } else {
+      setInfo({
+        ...info,
+        [name]: moment.parseZone(value).toDate().toISOString(),
+      });
+    }
   };
 
-  let subtasks: SubtasksType,
-    setSubtasks: React.Dispatch<React.SetStateAction<SubtasksType>>;
-  [subtasks, setSubtasks] = task
-    ? useState([...task.subtasks])
-    : useState([...newSubtask]);
-
+  const [subtasks, setSubtasks] = task
+    ? useState<SubtasksType[]>([...task.subtasks])
+    : useState<SubtasksType[]>([...newSubtask]);
   const handleSubtasksChange = (
     id: string,
     e: ChangeEvent<HTMLInputElement>
@@ -84,7 +106,6 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     });
     setSubtasks(updated);
   };
-
   const addNewSubtask = () => {
     if (subtasks.length >= 6) return;
     setSubtasks([
@@ -96,10 +117,40 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
       },
     ]);
   };
-
-  const handleDelete = (id: string) => {
+  const handleDeleteSubtask = (id: string) => {
     const updated = subtasks.filter((s) => s.id !== id);
     setSubtasks(updated);
+  };
+
+  let [assignees, setAssignees] = task
+    ? useState([...task.assignedTo])
+    : useState([...newAssignee]);
+  const handleAssigneesChange = (
+    id: string,
+    e: ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    const name = e.target.name;
+    if (/^\s+$/.test(value)) return;
+    const updated = assignees.map((a) => {
+      if (a.id === id) return { ...a, [name]: value };
+      return a;
+    });
+    setAssignees(updated);
+  };
+  const addNewAssignee = () => {
+    setAssignees([
+      ...assignees,
+      {
+        id: nanoid(),
+        name: "",
+        email: "",
+      },
+    ]);
+  };
+  const handleDeleteAssignee = (id: string) => {
+    const updated = assignees.filter((a) => a.id !== id);
+    setAssignees(updated);
   };
 
   const [titleError, setTitleError] = useState(false);
@@ -117,10 +168,13 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
           description: info.description,
           status,
           statusId: tempStatusId,
+          createdOn: info.createdOn,
+          due: info.due,
           subtasks: subtasks.map((s) => {
             const { error, ...others } = s;
             return others;
           }),
+          assignedTo: assignees,
         };
         editTask(payload, true);
       } else if (!task && status && tempStatusId) {
@@ -130,10 +184,13 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
           description: info.description,
           status,
           statusId: tempStatusId,
+          createdOn: info.createdOn,
+          due: info.due,
           subtasks: subtasks.map((s) => {
             const { error, ...others } = s;
             return others;
           }),
+          assignedTo: assignees,
         };
         editTask(payload, false);
       }
@@ -174,6 +231,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
             onChange={handleInputChange}
             className={titleError ? "error" : ""}
             maxLength={200}
+            placeholder="e.g Mobile UI Design"
           />
           {titleError && <span className="errorText">Required</span>}
         </div>
@@ -186,6 +244,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
             value={info.description}
             onChange={handleInputChange}
             maxLength={350}
+            placeholder="e.g Design an intuitive and user-friendly Mobile UI for the platform"
           ></textarea>
         </div>
         <div className="form-control">
@@ -208,12 +267,13 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
                 value={s.title}
                 onChange={(e) => handleSubtasksChange(s.id, e)}
                 className={s.error ? "error" : ""}
+                placeholder="e.g design the dashboard"
               />
               <button
                 type="button"
                 style={{ padding: "7px" }}
                 onClick={(e) => {
-                  handleDelete(s.id);
+                  handleDeleteSubtask(s.id);
                   e.stopPropagation();
                 }}
               >
@@ -268,6 +328,91 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
               })}
             </div>
           )}
+        </div>
+        <div className="form-control">
+          <label htmlFor="createdOn">
+            Created On
+            <input
+              type="date"
+              id="createdOn"
+              value={moment(info.createdOn).format("YYYY-MM-DD")}
+              name="createdOn"
+              required
+              style={{ marginLeft: "1em" }}
+              onChange={handleInputChange}
+              max={moment(today).format("YYYY-MM-DD")}
+            />
+          </label>
+        </div>
+        <div className="form-control">
+          <label htmlFor="due">
+            Due Date
+            <input
+              type="date"
+              id="due"
+              required
+              name="due"
+              style={{ marginLeft: "1em" }}
+              value={
+                info.due === "" ? "" : moment(info.due).format("YYYY-MM-DD")
+              }
+              onChange={handleInputChange}
+              min={moment(info.createdOn).format("YYYY-MM-DD")}
+            />
+          </label>
+        </div>
+        <div className="form-control">
+          <label htmlFor="assignTo">Assign To</label>
+          {assignees.map((a) => (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "1%",
+              }}
+              key={a.id}
+            >
+              <div className="grid">
+                <input
+                  type="text"
+                  required
+                  id="assignTo"
+                  placeholder="e.g John Doe"
+                  name="name"
+                  value={a.name}
+                  onChange={(e) => handleAssigneesChange(a.id, e)}
+                />
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g john.doe@example.com"
+                  name="email"
+                  value={a.email}
+                  onChange={(e) => handleAssigneesChange(a.id, e)}
+                />
+              </div>
+              <button
+                type="button"
+                style={{ padding: "7px" }}
+                onClick={(e) => {
+                  handleDeleteAssignee(a.id);
+                  e.stopPropagation();
+                }}
+              >
+                <Close />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="assign"
+            onClick={(e) => {
+              addNewAssignee();
+              e.stopPropagation();
+            }}
+          >
+            + Add New Assignee
+          </button>
         </div>
         <button type="submit" className="submit">
           {task ? "Save Changes" : "Create Task"}
@@ -342,6 +487,9 @@ const Wrapper = styled.div`
   input.error {
     border-color: #ea5555;
   }
+  input[type="date"] {
+    min-width: 150px;
+  }
   .errorText {
     position: absolute;
     bottom: 0.5em;
@@ -351,14 +499,15 @@ const Wrapper = styled.div`
   button {
     display: block;
   }
-  .subtask {
+  .subtask,
+  .assign {
     background-color: #f0effa;
     padding: 0.75em 0em;
     border-radius: 20px;
     color: var(--purple);
     font-weight: 600;
     &:hover {
-      opacity: 0.9;
+      opacity: 0.8;
     }
   }
   .status {
@@ -410,6 +559,12 @@ const Wrapper = styled.div`
     &:hover {
       background-color: #a8a4ff;
     }
+  }
+  div.grid {
+    display: grid;
+    flex-grow: 1;
+    grid-template-columns: 40% 1fr;
+    gap: 1em;
   }
 `;
 

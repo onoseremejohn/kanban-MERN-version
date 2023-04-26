@@ -1,18 +1,12 @@
 import styled from "styled-components";
+import moment from "moment";
+import { RiErrorWarningLine } from "react-icons/ri";
 import { Close, MenuIcon, ChevronDown } from "../assets/Icons";
-import {
-  forwardRef,
-  useState,
-  useRef,
-  MouseEvent,
-  TouchEvent,
-  RefObject,
-  useEffect,
-} from "react";
+import { forwardRef, useState, useRef, MouseEvent, TouchEvent } from "react";
 import { useGlobalContext } from "../AppContext";
+import Assignees from "./Assignees";
 import { statusName, countCompletedSubtasks } from "../helpers";
 const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
-  const divRef = ref as RefObject<HTMLDivElement>;
   const showRef = useRef<HTMLDivElement>(null);
   const modifyRef = useRef<HTMLDivElement>(null);
   const {
@@ -25,11 +19,11 @@ const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
     modify = () => {},
   } = useGlobalContext() || {};
   if (!selectedTask?.task || !ref) return null;
-  const { title, description, status, subtasks } = selectedTask.task;
+  const { title, description, status, subtasks, due, createdOn, assignedTo } =
+    selectedTask.task;
   const { statusIds } = selectedTask;
   const [showStatuses, setShowStatuses] = useState(false);
   const [modifyTask, setmodifyTask] = useState(false);
-  const [height, setHeight] = useState<number>(0);
   const toggleShow = () => {
     setShowStatuses((s) => !s);
   };
@@ -40,20 +34,11 @@ const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
     if (modifyTask && !modifyRef.current?.contains(e.target as Node))
       setmodifyTask(false);
   };
+  const createdOnFormatted = moment(createdOn).format("ddd, MMMM Do YYYY");
+  const dueFormatted = moment(due).format("ddd, MMMM Do YYYY");
 
-  useEffect(() => {
-    setHeight(
-      (divRef.current?.clientHeight ?? 0) + (showRef.current?.clientHeight ?? 0)
-    );
-  }, [showStatuses]);
   return (
-    <Wrapper
-      style={{
-        height: showStatuses ? `${height}px` : "auto",
-      }}
-      ref={divRef}
-      onClick={closeShow}
-    >
+    <Wrapper ref={ref} onClick={closeShow}>
       <button
         type="button"
         className="close"
@@ -151,6 +136,19 @@ const ViewTask = forwardRef<HTMLDivElement>((props, ref) => {
           </div>
         )}
       </div>
+      <div className="dates">
+        <div>
+          <h6>Created On</h6>
+          <p>{createdOnFormatted}</p>
+        </div>
+        <div style={{ position: "relative" }}>
+          <h6>Due Date</h6>
+          <p>
+            {dueFormatted} <RiErrorWarningLine />
+          </p>
+        </div>
+      </div>
+      <Assignees assignedTo={assignedTo} />
     </Wrapper>
   );
 });
@@ -248,10 +246,10 @@ export const Wrapper = styled.div`
     flex-direction: column;
     align-items: start;
     box-shadow: var(--bs);
-    position: absolute;
-    top: calc(100% + 0.5em);
-    width: 100%;
     background-color: ${({ theme }) => theme.modifyToggle};
+    position: absolute;
+    width: 100%;
+    z-index: 1;
     button {
       color: inherit;
       width: 100%;
@@ -259,7 +257,6 @@ export const Wrapper = styled.div`
       padding: 0.5em 1em;
       font-size: larger;
     }
-    /* margin-bottom: 2em; */
   }
   .modifyTask {
     top: 105%;
@@ -285,6 +282,19 @@ export const Wrapper = styled.div`
     font-weight: 400;
     text-decoration: line-through;
     color: gray;
+  }
+  .dates {
+    display: flex;
+    gap: 3.5em;
+    margin-bottom: 1em;
+    svg {
+      position: absolute;
+      top: 25%;
+      left: calc(100% + 10px);
+      color: red;
+      font-size: 2rem;
+      background-color: inherit;
+    }
   }
 `;
 

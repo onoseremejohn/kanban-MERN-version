@@ -1,8 +1,10 @@
 import styled from "styled-components";
 import { TasksType as BaseTasksType } from "../types";
 import { useGlobalContext } from "../AppContext";
-import { countCompletedSubtasks } from "../helpers";
+import { countCompletedSubtasks, isCompleted } from "../helpers";
 import { Draggable } from "@hello-pangea/dnd";
+import { RiErrorWarningLine, RiCheckboxCircleFill } from "react-icons/ri";
+import moment from "moment";
 interface TasksType extends BaseTasksType {
   columnId: string;
   index: number;
@@ -14,8 +16,12 @@ const SingleTask = ({
   subtasks,
   columnId,
   index,
+  due,
 }: TasksType) => {
   const { openTask = () => {} } = useGlobalContext() || {};
+  const today = moment();
+  const overdue = today.isSameOrAfter(moment(due), "day");
+  const completed = isCompleted(subtasks);
   return (
     <Draggable draggableId={taskId} index={index}>
       {(provided, snapshot) => (
@@ -36,6 +42,10 @@ const SingleTask = ({
           <p className="font-bold">
             {countCompletedSubtasks(subtasks)} of {subtasks.length} Subtasks
           </p>
+          {!completed && overdue && (
+            <RiErrorWarningLine title="Overdue" color="red" />
+          )}
+          {completed && <RiCheckboxCircleFill color="green" />}
         </Wrapper>
       )}
     </Draggable>
@@ -47,6 +57,7 @@ interface WrapperProps {
 }
 
 const Wrapper = styled.article<WrapperProps>`
+  position: relative;
   box-shadow: var(--bs);
   padding: 1.5rem 1rem;
   width: 17rem;
@@ -76,6 +87,14 @@ const Wrapper = styled.article<WrapperProps>`
   }
   p {
     color: var(--grey);
+  }
+  svg {
+    position: absolute;
+    top: 1.5rem;
+    right: 1rem;
+    font-size: 1.5em;
+    background-color: inherit;
+    cursor: pointer;
   }
 `;
 

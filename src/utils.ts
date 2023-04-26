@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-
 export const colors = [
   "#49c4e5",
   "#8471f2",

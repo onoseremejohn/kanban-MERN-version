@@ -4,6 +4,12 @@ export const countCompletedSubtasks = (subtasks: TasksType["subtasks"]) => {
   return completed.length;
 };
 
+export const isCompleted = (subtasks: TasksType["subtasks"]) => {
+  if (subtasks.length === 0) return false;
+  if (countCompletedSubtasks(subtasks) < subtasks.length) return false;
+  return true;
+};
+
 interface FindBoard {
   (a: BoardType[] | undefined, b: string | undefined): string | undefined;
 }
@@ -32,3 +38,19 @@ export const getColumn: GetColumn = (boards, boardId, columnId) => {
   const col = board?.columns.find((c) => c.id === columnId);
   return col;
 };
+
+export function getInitials(name: string) {
+  const names = name
+    .trim()
+    .split(" ")
+    .filter((x) => x !== "");
+  let initials = "";
+  for (let i = 0; i < names.length; i++) {
+    const firstChar = names[i].charAt(0).toUpperCase();
+    initials += firstChar;
+    if (i == 1) {
+      break;
+    }
+  }
+  return initials;
+}

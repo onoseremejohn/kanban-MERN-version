@@ -102,6 +102,9 @@ export interface TasksType {
   status: string;
   statusId: string;
   subtasks: { title: string; isCompleted: boolean; id: string }[];
+  createdOn: Date | string;
+  due: Date | string;
+  assignedTo: { id: string; name: string; email: string }[];
 }
 
 export interface ColumnType {

@@ -28,4 +28,10 @@ type JwtPayload = {
   name: string;
 };
 
-export { Controller, errorHandlerMiddleware, JwtPayload };
+interface Assignee {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export { Controller, errorHandlerMiddleware, JwtPayload, Assignee };

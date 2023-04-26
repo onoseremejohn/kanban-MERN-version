@@ -14,8 +14,9 @@ const getBoard: Controller = async (req, res) => {
   if (!board) {
     const save: Save = { ...defaultBoard };
     save.createdBy = req.user?.userId;
-    await Board.create(save);
-    res.status(StatusCodes.CREATED).json(defaultBoard);
+    const board = await Board.create(save);
+    const response = await Board.findById(board._id).select("-createdBy -_id");
+    res.status(StatusCodes.CREATED).json(response);
     return;
   }
   res.status(StatusCodes.OK).json(board);
