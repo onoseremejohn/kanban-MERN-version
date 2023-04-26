@@ -141,11 +141,6 @@ const Wrapper = styled.main<WrapperProps>`
   display: grid;
   place-content: center;
   min-height: 100vh;
-  img.spin {
-    width: 20px;
-    height: 20px;
-    margin: 0 auto;
-  }
   h3,
   p button {
     text-transform: capitalize;

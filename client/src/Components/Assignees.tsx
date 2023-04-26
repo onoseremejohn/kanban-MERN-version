@@ -9,8 +9,8 @@ const Assignees = ({ assignedTo }: AssigneesProp) => {
       <Wrapper>
         {assignedTo.length === 0 && "none"}
         {assignedTo.map((person) => {
-          const { name, email } = person;
-          return <SinglePerson name={name} email={email} />;
+          const { name, email, id } = person;
+          return <SinglePerson name={name} email={email} key={id} />;
         })}
       </Wrapper>
     </>

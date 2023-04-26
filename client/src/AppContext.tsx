@@ -153,8 +153,8 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       try {
         await authFetch.patch("/tasks", update);
         localStorage.setItem("theme", update.theme);
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        console.log(error.response.data?.msg);
         if (retries < MAX_RETRIES) {
           retries++;
           console.log(`Retring to save changes. Retry count : ${retries}`);
@@ -165,7 +165,6 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     saveChanges();
-
     return () => {
       clearTimeout(timeoutId);
     };

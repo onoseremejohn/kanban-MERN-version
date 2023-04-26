@@ -13,9 +13,12 @@ import { nanoid } from "nanoid";
 import { TasksType } from "../types";
 import { statusName } from "../helpers";
 import moment from "moment";
-
 interface SubtasksType
   extends Pick<TasksType["subtasks"][number], "title" | "isCompleted" | "id"> {
+  error?: boolean;
+}
+interface AssigneeType
+  extends Pick<TasksType["assignedTo"][number], "email" | "name" | "id"> {
   error?: boolean;
 }
 
@@ -123,8 +126,8 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
   };
 
   let [assignees, setAssignees] = task
-    ? useState([...task.assignedTo])
-    : useState([...newAssignee]);
+    ? useState<AssigneeType[]>([...task.assignedTo])
+    : useState<AssigneeType[]>([...newAssignee]);
   const handleAssigneesChange = (
     id: string,
     e: ChangeEvent<HTMLInputElement>
@@ -132,11 +135,24 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     const value = e.target.value;
     const name = e.target.name;
     if (/^\s+$/.test(value)) return;
-    const updated = assignees.map((a) => {
-      if (a.id === id) return { ...a, [name]: value };
-      return a;
+
+    setAssignees((prevAssignees) => {
+      let updated: AssigneeType[] = [];
+      if (
+        assignees.some((a) => a.email.toLowerCase() === value.toLowerCase())
+      ) {
+        updated = prevAssignees.map((a) => {
+          if (a.id === id) return { ...a, [name]: value, error: true };
+          return a;
+        });
+      } else {
+        updated = prevAssignees.map((a) => {
+          if (a.id === id) return { ...a, [name]: value, error: false };
+          return a;
+        });
+      }
+      return updated;
     });
-    setAssignees(updated);
   };
   const addNewAssignee = () => {
     setAssignees([
@@ -149,7 +165,16 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     ]);
   };
   const handleDeleteAssignee = (id: string) => {
-    const updated = assignees.filter((a) => a.id !== id);
+    let updated = assignees.filter((a) => a.id !== id);
+    const usedEmails = new Set();
+    updated = updated.map((a) => {
+      if (usedEmails.has(a.email.toLowerCase())) {
+        return { ...a, error: true };
+      } else {
+        usedEmails.add(a.email.toLowerCase());
+        return { ...a, error: false };
+      }
+    });
     setAssignees(updated);
   };
 
@@ -158,7 +183,14 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const next = info.title !== "" && subtasks.every((s) => s.title !== "");
-    if (next) {
+    const assignNext = assignees.every(
+      (a) =>
+        !assignees.some(
+          (assig) =>
+            assig.email.toLowerCase() === a.email.toLowerCase() && assig !== a
+        )
+    );
+    if (next && assignNext) {
       const status = statusName(boards, currentBoardId, tempStatusId);
       let payload: TasksType;
       if (task && status && tempStatusId) {
@@ -204,6 +236,16 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
         });
         return updated;
       });
+      if (!assignNext) {
+        const usedEmails = new Set();
+        const updatedAssignees = assignees.map((a) => {
+          if (usedEmails.has(a.email.toLowerCase()))
+            return { ...a, error: true };
+          usedEmails.add(a.email.toLowerCase());
+          return { ...a, error: false };
+        });
+        setAssignees(updatedAssignees);
+      }
     }
   };
 
@@ -369,6 +411,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
                 display: "flex",
                 alignItems: "center",
                 gap: "1%",
+                position: "relative",
               }}
               key={a.id}
             >
@@ -389,6 +432,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
                   name="email"
                   value={a.email}
                   onChange={(e) => handleAssigneesChange(a.id, e)}
+                  className={a.error ? "error" : ""}
                 />
               </div>
               <button
@@ -401,6 +445,11 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
               >
                 <Close />
               </button>
+              {a.error && (
+                <span className="errorText" style={{ right: "3em" }}>
+                  Used
+                </span>
+              )}
             </div>
           ))}
           <button
