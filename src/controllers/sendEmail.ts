@@ -33,11 +33,11 @@ const sendEmail: Controller = async (req, res) => {
   let info = await transporter.sendMail({
     from: `"${from}" <${process.env.EMAIL_USER}>`,
     to: receivers,
-    subject: `<strong>New Task:</strong> ${task}`,
+    subject: `New Task: ${task}`,
     html: htmlBody,
   });
   console.log("hello");
-  res.status(StatusCodes.OK).json({ msg: "Email sent successfully" });
+  res.status(StatusCodes.OK).end();
 };
 
 export default sendEmail;

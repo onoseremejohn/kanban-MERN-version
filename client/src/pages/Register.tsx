@@ -62,6 +62,7 @@ const Register = () => {
       setTimeout(() => {
         navigate("/");
       }, 1000);
+      return;
     }
     if (signupSuccess) {
       toggleAction();

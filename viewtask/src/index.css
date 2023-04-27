@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap");
+
+/*
+=============== 
+Variables
+===============
+*/
+
+:root {
+  --ff-primary: "Jost", sans-serif;
+  --ff-secondary: "Roboto Mono", monospace;
+
+  --fw-reg: 400;
+  --fw-medium: 500;
+  --fw-bold: 600;
+  --fw-heading: 700;
+
+  --clr-white: #ffffff;
+  --clr-black: #000000;
+
+  --bs1: 0.25em 0.25em 0.75em rgba(0, 0, 0, 0.25),
+    0.125em 0.125em 0.25em rgba(0, 0, 0, 0.15);
+
+  --bs: 0 0 8px #364e7e1a;
+
+  --transition: all 0.3s ease-in-out;
+  --spacing: 0.1rem;
+  --light-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --dark-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  --radius: 0.375rem;
+  --smallWidth: 85vw;
+  --maxWidth: 1200px;
+  --grey: #828fa3;
+  --purple: #635fc7;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: var(--ff-primary);
+  font-weight: var(--fw-reg);
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+ul {
+  list-style-type: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--clr-grey-8);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: var(--fw-heading);
+  letter-spacing: var(--spacing);
+  text-transform: capitalize;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+h1 {
+  font-size: 2.5rem;
+}
+h2 {
+  font-size: 2rem;
+}
+h3 {
+  font-size: 1.5rem;
+}
+h4 {
+  font-size: 1.25rem;
+}
+h5 {
+  font-size: 0.875rem;
+}
+
+@media (min-width: 800px) {
+  h1 {
+    font-size: 3rem;
+  }
+  h2 {
+    font-size: 2.5rem;
+  }
+  h3 {
+    font-size: 2rem;
+  }
+  h4 {
+    font-size: 1.5rem;
+  }
+  h5 {
+    font-size: 1rem;
+  }
+  body {
+    font-size: 1rem;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1;
+  }
+}
