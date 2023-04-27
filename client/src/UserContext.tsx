@@ -2,6 +2,8 @@ import { useContext, createContext, ReactNode, useReducer } from "react";
 import axios from "axios";
 import { UserStateType } from "./types";
 import reducer from "./userReducer";
+import { EmailFunc } from "./types";
+import { capitalizeName, capitalizeSentence } from "./helpers";
 import {
   DISPLAY_ALERT,
   CLEAR_ALERT,
@@ -107,6 +109,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: LOGOUT_USER });
   };
 
+  const sendEmail: EmailFunc = async (sender, taskName, recipients, taskId) => {
+    const from = capitalizeName(sender);
+    const task = capitalizeSentence(taskName);
+    const receivers = recipients.map((r) => ({
+      name: capitalizeName(r.name),
+      address: r.email.toLowerCase(),
+    }));
+    try {
+      await authFetch.post("/tasks/sendemail", {
+        from,
+        task,
+        receivers,
+        taskId,
+      });
+    } catch (error: any) {
+      console.log(error.response.data?.msg);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -116,6 +137,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
         setupUser,
         authFetch,
         logoutUser,
+        sendEmail,
       }}
     >
       {children}

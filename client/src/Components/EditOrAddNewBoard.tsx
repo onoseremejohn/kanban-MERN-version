@@ -67,7 +67,7 @@ const EditOrAddNewBoard = forwardRef<HTMLDivElement>((props, ref) => {
           return c;
         });
       } else if (
-        columns.some((c) => c.name.toLowerCase() === value.toLowerCase())
+        prevColumns.some((c) => c.name.toLowerCase() === value.toLowerCase())
       ) {
         updated = prevColumns.map((c) => {
           if (c.id === id)

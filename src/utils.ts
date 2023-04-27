@@ -583,13 +583,14 @@ export const defaultBoard: Main = {
   }),
 };
 
-interface TasksType {
+export interface TasksType {
   id: string;
   title: string;
   description: string;
   status: string;
   statusId: string;
   subtasks: { title: string; isCompleted: boolean; id: string }[];
+  assignedTo?: { id: string; name: string; email: string }[];
 }
 
 interface ColumnType {

@@ -132,6 +132,7 @@ export interface UserStateType {
   setupUser?(a: setupUserPayload): void;
   authFetch?: AxiosInstance;
   logoutUser?(): void;
+  sendEmail?: EmailFunc;
 }
 
 export type UserReducerType<S, A> = (state: S, action: A) => UserStateType;
@@ -156,4 +157,13 @@ interface setupUserPayload {
   currentUser: { name: string; email: string; password: string };
   endPoint: "login" | "register";
   alertText: string;
+}
+
+export interface EmailFunc {
+  (
+    a: string,
+    b: string,
+    c: { name: string; email: string }[],
+    d: string
+  ): Promise<void>;
 }

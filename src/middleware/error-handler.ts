@@ -1,6 +1,7 @@
 import { errorHandlerMiddleware as ErrorMiddleware } from "../types.js";
 import { StatusCodes } from "http-status-codes";
 const errorHandlerMiddleware: ErrorMiddleware = (err, req, res, next) => {
+  console.log(err)
   let customError = {
     // set default
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
@@ -21,7 +22,7 @@ const errorHandlerMiddleware: ErrorMiddleware = (err, req, res, next) => {
     customError.statusCode = StatusCodes.BAD_REQUEST;
   }
   if (err.name === "CastError") {
-    customError.msg = `No item found with id : ${err.value}`;
+    customError.msg = `Sorry, we cannot find : ${err.value}`;
     customError.statusCode = StatusCodes.NOT_FOUND;
   }
   // return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ err });

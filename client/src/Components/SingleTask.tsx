@@ -45,7 +45,9 @@ const SingleTask = ({
           {!completed && overdue && (
             <RiErrorWarningLine title="Overdue" color="red" />
           )}
-          {completed && <RiCheckboxCircleFill color="green" />}
+          {completed && (
+            <RiCheckboxCircleFill title="completed" color="green" />
+          )}
         </Wrapper>
       )}
     </Draggable>

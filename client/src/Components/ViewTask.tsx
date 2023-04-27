@@ -290,7 +290,7 @@ export const Wrapper = styled.div`
     svg {
       position: absolute;
       top: 25%;
-      left: calc(100% + 10px);
+      right: -30%;
       color: red;
       font-size: 2rem;
       background-color: inherit;

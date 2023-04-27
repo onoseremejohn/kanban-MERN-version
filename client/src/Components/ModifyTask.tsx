@@ -13,6 +13,7 @@ import { nanoid } from "nanoid";
 import { TasksType } from "../types";
 import { statusName } from "../helpers";
 import moment from "moment";
+import { useUserContext } from "../UserContext";
 interface SubtasksType
   extends Pick<TasksType["subtasks"][number], "title" | "isCompleted" | "id"> {
   error?: boolean;
@@ -20,6 +21,7 @@ interface SubtasksType
 interface AssigneeType
   extends Pick<TasksType["assignedTo"][number], "email" | "name" | "id"> {
   error?: boolean;
+  disabled?: boolean;
 }
 
 const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
@@ -31,6 +33,8 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     currentBoardId,
     editTask = () => {},
   } = useGlobalContext() || {};
+  const { user, sendEmail = () => {} } = useUserContext() || {};
+  if (!user) return <>Unauthorized</>;
   const task = selectedTask?.task;
   const statusIds = boards
     ?.find((b) => b.id === currentBoardId)
@@ -49,7 +53,6 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
       isCompleted: false,
     },
   ];
-  const newAssignee: TasksType["assignedTo"] = [];
 
   const [tempStatusId, setTempStatusId] = useState(columnId);
 
@@ -126,8 +129,10 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
   };
 
   let [assignees, setAssignees] = task
-    ? useState<AssigneeType[]>([...task.assignedTo])
-    : useState<AssigneeType[]>([...newAssignee]);
+    ? useState<AssigneeType[]>(
+        [...task.assignedTo].map((a) => ({ ...a, disabled: true }))
+      )
+    : useState<AssigneeType[]>([]);
   const handleAssigneesChange = (
     id: string,
     e: ChangeEvent<HTMLInputElement>
@@ -135,11 +140,10 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     const value = e.target.value;
     const name = e.target.name;
     if (/^\s+$/.test(value)) return;
-
     setAssignees((prevAssignees) => {
       let updated: AssigneeType[] = [];
       if (
-        assignees.some((a) => a.email.toLowerCase() === value.toLowerCase())
+        prevAssignees.some((a) => a.email.toLowerCase() === value.toLowerCase())
       ) {
         updated = prevAssignees.map((a) => {
           if (a.id === id) return { ...a, [name]: value, error: true };
@@ -161,6 +165,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
         id: nanoid(),
         name: "",
         email: "",
+        disabled: false,
       },
     ]);
   };
@@ -192,7 +197,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     );
     if (next && assignNext) {
       const status = statusName(boards, currentBoardId, tempStatusId);
-      let payload: TasksType;
+      let payload = {} as TasksType;
       if (task && status && tempStatusId) {
         payload = {
           ...task,
@@ -206,7 +211,10 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
             const { error, ...others } = s;
             return others;
           }),
-          assignedTo: assignees,
+          assignedTo: assignees.map((a) => {
+            const { error, disabled, ...others } = a;
+            return others;
+          }),
         };
         editTask(payload, true);
       } else if (!task && status && tempStatusId) {
@@ -222,9 +230,24 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
             const { error, ...others } = s;
             return others;
           }),
-          assignedTo: assignees,
+          assignedTo: assignees.map((a) => {
+            const { error, disabled, ...others } = a;
+            return others;
+          }),
         };
         editTask(payload, false);
+      }
+      const emails = assignees
+        .filter((a) => a.disabled === false)
+        .filter(
+          (b) =>
+            !task?.assignedTo.some(
+              (t) => t.email.toLowerCase() === b.email.toLowerCase()
+            )
+        );
+      // second filter method is to avoid a scenario whereby I delete an assignee by mistake and add such email back then send another email
+      if (emails.length > 0) {
+        sendEmail(user.name, payload.title, emails, payload.id);
       }
       closeModal();
     } else {
@@ -424,15 +447,17 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
                   name="name"
                   value={a.name}
                   onChange={(e) => handleAssigneesChange(a.id, e)}
+                  disabled={a.disabled}
                 />
                 <input
                   type="email"
                   required
                   placeholder="e.g john.doe@example.com"
                   name="email"
-                  value={a.email}
+                  value={a.email.toLowerCase()}
                   onChange={(e) => handleAssigneesChange(a.id, e)}
                   className={a.error ? "error" : ""}
+                  disabled={a.disabled}
                 />
               </div>
               <button
@@ -538,6 +563,10 @@ const Wrapper = styled.div`
   }
   input[type="date"] {
     min-width: 150px;
+  }
+  input:disabled {
+    cursor: not-allowed;
+    opacity: 50%;
   }
   .errorText {
     position: absolute;
