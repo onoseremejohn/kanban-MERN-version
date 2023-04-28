@@ -26,7 +26,7 @@ const sendEmail: Controller = async (req, res) => {
   const taskLink = `${baseUrl}/tasks/${userId}/${taskId}`;
 
   let htmlBody = `
-  <p>You have been assigned a new task: <strong>${task}</strong></p>
+  <p>You have been assigned a new task from ${from} : <strong>${task}</strong></p>
   <p>Click <a href="${taskLink}">HERE</a> to view the task and track updates</p>
   `;
 

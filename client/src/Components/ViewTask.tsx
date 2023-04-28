@@ -288,11 +288,8 @@ export const Wrapper = styled.div`
     gap: 3.5em;
     margin-bottom: 1em;
     svg {
-      position: absolute;
-      top: 25%;
-      right: -30%;
       color: red;
-      font-size: 2rem;
+      font-size: 1.5rem;
       background-color: inherit;
     }
   }

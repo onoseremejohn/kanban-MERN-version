@@ -146,7 +146,12 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
         prevAssignees.some((a) => a.email.toLowerCase() === value.toLowerCase())
       ) {
         updated = prevAssignees.map((a) => {
-          if (a.id === id) return { ...a, [name]: value, error: true };
+          if (a.id === id)
+            return {
+              ...a,
+              [name]: value,
+              error: name === "email" && value !== "",
+            };
           return a;
         });
       } else {
@@ -173,7 +178,7 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
     let updated = assignees.filter((a) => a.id !== id);
     const usedEmails = new Set();
     updated = updated.map((a) => {
-      if (usedEmails.has(a.email.toLowerCase())) {
+      if (usedEmails.has(a.email.toLowerCase()) && a.email !== "") {
         return { ...a, error: true };
       } else {
         usedEmails.add(a.email.toLowerCase());
@@ -438,8 +443,13 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
               }}
               key={a.id}
             >
-              <div className="grid">
+              <div>
                 <input
+                  style={{
+                    display: "inline-block",
+                    width: "40%",
+                    marginRight: "5%",
+                  }}
                   type="text"
                   required
                   id="assignTo"
@@ -450,6 +460,10 @@ const ModifyTask = forwardRef<HTMLDivElement>((props, ref) => {
                   disabled={a.disabled}
                 />
                 <input
+                  style={{
+                    display: "inline-block",
+                    width: "55%",
+                  }}
                   type="email"
                   required
                   placeholder="e.g john.doe@example.com"
@@ -637,12 +651,6 @@ const Wrapper = styled.div`
     &:hover {
       background-color: #a8a4ff;
     }
-  }
-  div.grid {
-    display: grid;
-    flex-grow: 1;
-    grid-template-columns: 40% 1fr;
-    gap: 1em;
   }
 `;
 

@@ -16,7 +16,7 @@ import connectDB from "./db/connectDB.js";
 // import xss from "xss-clean";
 import helmet from "helmet";
 import cors from "cors";
-import rateLimiter from "express-rate-limit";
+// import rateLimiter from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 
 import prompt from "./controllers/prompt.js";
@@ -45,9 +45,8 @@ app.get("/api", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/tasks", authenticator, tasksRouter);
-app.get('/tasks/:userId/:taskId', prompt)
-app.get('/tasks/:userId/:taskId/view', viewTask)
-
+app.get("/tasks/:userId/:taskId", prompt);
+app.get("/tasks/:userId/:taskId/view", viewTask);
 
 app.get("*", (req, res) => {
   res.sendFile(resolve(dirname(__dirname), "./client/dist", "index.html"));

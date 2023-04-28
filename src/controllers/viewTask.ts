@@ -4,6 +4,11 @@ import Board from "../models/Taskboard.js";
 import NotFoundError from "../errors/not-found.js";
 import { Main, TasksType } from "../utils.js";
 import UnauthenticatedError from "../errors/unauthenticated.js";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const viewTask: Controller = async (req, res) => {
   const { userId, taskId } = req.params;
@@ -30,7 +35,7 @@ const viewTask: Controller = async (req, res) => {
     );
 
   res.status(StatusCodes.OK).render("task", { task: firstTask });
-  // res.status(StatusCodes.OK).json({ task: firstTask });
+  // res.json({ task: firstTask });
 };
 
 export default viewTask;

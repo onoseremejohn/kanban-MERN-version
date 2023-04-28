@@ -40,7 +40,7 @@ const Loader = styled.div`
   position: absolute;
   animation: ${spin} 2s linear infinite;
   top: 45vh;
-  left: 50%;
+  left: 45%;
   .circle {
     --dim: 1.2rem;
     width: var(--dim);
