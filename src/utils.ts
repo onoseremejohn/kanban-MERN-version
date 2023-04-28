@@ -222,30 +222,7 @@ export const board = {
 
 export const defaultBoard: Main = {
   theme: "light",
-  boards: board.boards.map((b) => {
-    return {
-      ...b,
-      id: nanoid(),
-      columns: b.columns.map((c, index) => {
-        const columnId = nanoid();
-        return {
-          ...c,
-          id: columnId,
-          color: colors[index],
-          tasks: c.tasks.map((t) => {
-            return {
-              ...t,
-              id: nanoid(),
-              statusId: columnId,
-              subtasks: t.subtasks.map((s) => {
-                return { ...s, id: nanoid() };
-              }),
-            };
-          }),
-        };
-      }),
-    };
-  }),
+  boards: []
 };
 
 export interface TasksType {

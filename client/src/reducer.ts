@@ -61,7 +61,7 @@ const reducer: ReducerType<StateType, ActionType> = (
         theme,
         boards,
         boardIds,
-        currentBoardId: currentBoardId || boardIds[0],
+        currentBoardId: currentBoardId || boardIds[0] || "",
         tasksLoaded: true,
         isLoading: false,
         isError: false,
