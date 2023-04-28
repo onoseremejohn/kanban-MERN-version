@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TASK</title>
     <script>
-      window.myTask = <%- JSON.stringify(task) %>;
+      var myTa = <%- JSON.stringify(task) %>
     </script>
-    <script type="module" crossorigin src="/assets/index-38c3bff9.js"></script>
     <link rel="stylesheet" href="/assets/index-d5cad9a3.css" />
   </head>
   <body>
+    <script>
+      document.body.setAttribute("data-task", JSON.stringify(myTa));
+    </script>
     <div id="root"></div>
   </body>
+  <script
+    type="module"
+    crossorigin
+    src="/assets/index-883775b6.js"
+    defer
+  ></script>
 </html>
