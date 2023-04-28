@@ -102,9 +102,9 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
+  "exclude": ["src/assets"],
   "include": ["src/**/*", "src/index.d.ts"],
   "ts-node": {
     "esm": true
   }
-  // "exclude": ["src/types.ts"]
 }
