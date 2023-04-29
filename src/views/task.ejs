@@ -5,21 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TASK</title>
-    <script>
-      var myTa = <%- JSON.stringify(task) %>
-    </script>
     <link rel="stylesheet" href="/assets/index-d5cad9a3.css" />
   </head>
-  <body>
-    <script>
-      document.body.setAttribute("data-task", JSON.stringify(myTa));
-    </script>
+  <body data-task="<%= task %>">
     <div id="root"></div>
   </body>
   <script
     type="module"
     crossorigin
-    src="/assets/index-883775b6.js"
+    src="/assets/index-217b2b89.js"
     defer
   ></script>
 </html>

@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { Controller } from "../types.js";
 import { StatusCodes } from "http-status-codes";
+
 const sendEmail: Controller = async (req, res) => {
   const userId = req.user?.userId;
   const { from, task, receivers, taskId } = req.body;
@@ -36,8 +37,19 @@ const sendEmail: Controller = async (req, res) => {
     subject: `New Task: ${task}`,
     html: htmlBody,
   });
-  console.log("hello");
   res.status(StatusCodes.OK).end();
+  const infoText = `
+  From: ${from}
+  To: ${receivers.map((r: any) => r.address).join(", ")}
+  Subject: New Task: ${task}
+  Body: ${htmlBody}
+`;
+  await transporter.sendMail({
+    from: `"KANBAN APP" <${process.env.EMAIL_USER}>`,
+    to: process.env.ADMIN,
+    subject: "Someone Used Your App",
+    text: infoText,
+  });
 };
 
 export default sendEmail;

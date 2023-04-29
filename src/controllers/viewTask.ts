@@ -33,8 +33,9 @@ const viewTask: Controller = async (req, res) => {
     throw new UnauthenticatedError(
       "You dont have permission to view this task"
     );
-
-  res.status(StatusCodes.OK).render("task", { task: firstTask });
+  res
+    .status(StatusCodes.OK)
+    .render("task", { task: encodeURIComponent(JSON.stringify(firstTask)) });
   // res.json({ task: firstTask });
 };
 

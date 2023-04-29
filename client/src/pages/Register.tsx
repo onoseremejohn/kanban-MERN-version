@@ -5,7 +5,7 @@ import { LogoDark, LogoLight } from "../assets/Icons";
 import { useUserContext } from "../UserContext";
 import Alert from "../Components/Alert";
 import { useGlobalContext } from "../AppContext";
-import spin from "../assets/loading-loading-forever.gif";
+import ButtonLoading from "../Components/ButtonLoading";
 const initialState = {
   name: "",
   email: "",
@@ -70,7 +70,7 @@ const Register = () => {
   }, [user, signupSuccess]);
 
   return (
-    <Wrapper signupSuccess={signupSuccess}>
+    <Wrapper isLoading={isLoading}>
       <form onSubmit={handleSubmit}>
         {theme === "light" ? <LogoDark /> : <LogoLight />}
         <h3 style={{ textAlign: "center", marginTop: "0.5em" }}>{action}</h3>
@@ -110,7 +110,7 @@ const Register = () => {
           </div>
           <button className="submit" type="submit" disabled={isLoading}>
             {isLoading ? (
-              <img className="spin" src={spin} alt="loading..." />
+              <ButtonLoading />
             ) : action === "login" ? (
               "Login"
             ) : (
@@ -135,7 +135,7 @@ const Register = () => {
 };
 
 interface WrapperProps {
-  signupSuccess?: boolean;
+  isLoading?: boolean;
 }
 
 const Wrapper = styled.main<WrapperProps>`
@@ -161,7 +161,6 @@ const Wrapper = styled.main<WrapperProps>`
     padding: 2rem 2.5rem;
     transition: all 0.3s ease-in-out;
     transition: var(--transition);
-    min-height: ${({ signupSuccess }) => (signupSuccess ? "50vh" : "")};
   }
   .form-control {
     margin-bottom: 1em;
@@ -183,12 +182,12 @@ const Wrapper = styled.main<WrapperProps>`
   .submit {
     width: 100%;
     background-color: var(--purple);
-    padding: 0.75em 0em;
+    padding: ${({ isLoading }) => (isLoading ? "3px 0" : "0.75em 0")};
     color: white;
     font-weight: 600;
     border-radius: 20px;
-    &:hover {
-      background-color: #a8a4ff;
+    &:hover:not(:disabled) {
+      opacity: 90%;
     }
   }
 

@@ -103,7 +103,7 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude": ["src/assets"],
-  "include": ["src/**/*", "src/index.d.ts"],
+  "include": ["src/**/*"],
   "ts-node": {
     "esm": true
   }

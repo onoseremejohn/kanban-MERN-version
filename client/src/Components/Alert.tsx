@@ -23,6 +23,7 @@ const Wrapper = styled.div<Props>`
   border-radius: var(--radius);
   letter-spacing: 1px;
   margin-bottom: 1rem;
+  min-height: 36px;
   padding: 0.375rem 0.75rem;
   text-align: center;
   visibility: ${({ showAlert }) => (showAlert ? "visible" : "hidden")};

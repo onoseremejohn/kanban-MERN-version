@@ -154,14 +154,13 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
         await authFetch.patch("/tasks", update);
         localStorage.setItem("theme", update.theme);
       } catch (error: any) {
-        console.log(error.response.data?.msg);
+        if (error.response.status === 401) {
+          return;
+        }
         if (retries < MAX_RETRIES) {
           retries++;
-          console.log(`Retring to save changes. Retry count : ${retries}`);
           timeoutId = setTimeout(saveChanges, 1500 * retries); // exponential backoff strategy
-        } else {
-          console.log("Max retries reached. Aborting patch request");
-        }
+        } else return;
       }
     };
     saveChanges();
