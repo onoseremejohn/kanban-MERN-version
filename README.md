@@ -1,3 +1,11 @@
+To run it on your local machine follow these steps
+```
+git clone https://github.com/onoseremejohn/kanban-MERN-version.git
+npm run setup-production
+npm run build
+```
+
+
 ## The challenge
 
 Your challenge is to build out this task management app and get it looking as close to the design as possible.
