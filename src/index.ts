@@ -13,7 +13,7 @@ import tasksRouter from "./routes/tasks.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import notFoundMiddleware from "./middleware/not-found.js";
 import connectDB from "./db/connectDB.js";
-// import xss from "xss-clean";
+import xss from "xss-clean";
 import helmet from "helmet";
 // import rateLimiter from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
@@ -34,11 +34,15 @@ app.set("trust proxy", 1);
 // app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(express.json());
 app.use(helmet());
-// app.use(xss());
+app.use(xss());
 app.use(mongoSanitize());
 
 app.get("/api", (req, res) => {
   res.json({ msg: "hello" });
+});
+
+app.get("/manifest.json", (req, res) => {
+  res.sendFile(resolve(dirname(__dirname), "./client/dist", "manifest.json"));
 });
 
 app.use("/api/auth", authRouter);
