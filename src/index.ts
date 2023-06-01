@@ -1,6 +1,6 @@
 import { log } from "console";
 import express from "express";
-import { dirname, resolve, join } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import "express-async-errors";
 import dotenv from "dotenv";
@@ -13,12 +13,11 @@ import tasksRouter from "./routes/tasks.js";
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import notFoundMiddleware from "./middleware/not-found.js";
 import connectDB from "./db/connectDB.js";
-import xss from "xss-clean";
+// import xss from "xss-clean";
 import helmet from "helmet";
 // import rateLimiter from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 
-import prompt from "./controllers/prompt.js";
 import viewTask from "./controllers/viewTask.js";
 
 dotenv.config();
@@ -28,13 +27,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 app.use(express.static(resolve(dirname(__dirname), "./client/dist")));
-app.set("view engine", "ejs");
-app.set("views", join(__dirname, "views"));
+// app.set("view engine", "ejs");
+// app.set("views", join(__dirname, "views"));
 app.set("trust proxy", 1);
 // app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(express.json());
 app.use(helmet());
-app.use(xss());
+// app.use(xss());
 app.use(mongoSanitize());
 
 app.get("/api", (req, res) => {
@@ -47,8 +46,8 @@ app.get("/manifest.json", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/tasks", authenticator, tasksRouter);
-app.get("/tasks/:userId/:taskId", prompt);
-app.get("/tasks/:userId/:taskId/view", viewTask);
+app.get("/api/task/:userId/:taskId/view", viewTask);
+// app.get("/tasks/:userId/:taskId", prompt);
 
 app.get("*", (req, res) => {
   res.sendFile(resolve(dirname(__dirname), "./client/dist", "index.html"));
@@ -60,7 +59,10 @@ app.use(errorHandlerMiddleware);
 const port = process.env.PORT || 5000;
 
 const start = async () => {
-  if (!process.env.MONGO_URI) return;
+  if (!process.env.MONGO_URI) {
+    log("No mongo uri provided");
+    return;
+  }
   try {
     await connectDB(process.env.MONGO_URI);
     app.listen(port, () => log(`server is listening on port ${port}`));

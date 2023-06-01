@@ -1,14 +1,12 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useUserContext } from "../UserContext";
-import jwt from "jsonwebtoken";
-import { useState } from "react";
 
 interface PrivateRouteProps {
   children: ReactNode;
 }
 
-const PrivateRoute = ({ children }: PrivateRouteProps) => {
+const Private = ({ children }: PrivateRouteProps) => {
   const { user, isLoading } = useUserContext() || {};
   if (isLoading) return <h1>Loading...</h1>;
   if (!user) return <Navigate to="/landing" />;
@@ -16,4 +14,4 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
   return <>{children}</>;
 };
 
-export default PrivateRoute;
+export default Private;

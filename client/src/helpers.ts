@@ -1,4 +1,5 @@
 import { TasksType, BoardType, ColumnType } from "./types";
+import { lazy } from "react";
 export const countCompletedSubtasks = (subtasks: TasksType["subtasks"]) => {
   const completed = subtasks.filter((x) => x.isCompleted);
   return completed.length;
@@ -69,7 +70,3 @@ export function capitalizeSentence(sentence: string) {
   const result = capitalized.join(" ");
   return result;
 }
-
-
-
-

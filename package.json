@@ -13,7 +13,7 @@
     "start": "node dist/index.js",
     "dev": "npx nodemon",
     "client-dev": "npm run dev --prefix client",
-    "build": "rimraf ./dist && tsc && copyfiles -u 1 src/**/*.ejs dist &&  copyfiles -u 1 ./src/assets/**/* ./client/dist"
+    "build": "rimraf ./dist && tsc"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

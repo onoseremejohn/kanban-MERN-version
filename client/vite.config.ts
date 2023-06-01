@@ -39,6 +39,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": "http://localhost:5000",
+      // "/tasks": "http://localhost:5000",
     },
   },
 });

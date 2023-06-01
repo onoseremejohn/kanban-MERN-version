@@ -5,7 +5,6 @@ import NotFoundError from "../errors/not-found.js";
 import { Main, TasksType } from "../utils.js";
 import UnauthenticatedError from "../errors/unauthenticated.js";
 
-
 const viewTask: Controller = async (req, res) => {
   const { userId, taskId } = req.params;
   let { email } = req.query as { email: string | undefined };
@@ -29,10 +28,10 @@ const viewTask: Controller = async (req, res) => {
     throw new UnauthenticatedError(
       "You dont have permission to view this task"
     );
-  res
-    .status(StatusCodes.OK)
-    .render("task", { task: encodeURIComponent(JSON.stringify(firstTask)) });
-  // res.json({ task: firstTask });
+  // res
+  //   .status(StatusCodes.OK)
+  //   .render("task", { task: encodeURIComponent(JSON.stringify(firstTask)) });
+  res.status(StatusCodes.OK).json({ task: firstTask });
 };
 
 export default viewTask;
