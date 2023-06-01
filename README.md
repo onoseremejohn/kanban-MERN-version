@@ -1,8 +1,24 @@
 To run it on your local machine follow these steps
 ```
-git clone https://github.com/onoseremejohn/kanban-MERN-version.git
-npm run setup-production
-npm run build
+1. git clone https://github.com/onoseremejohn/kanban-MERN-version.git
+2. setup env variables
+- APP_URL  (the live url of the app where its hosted on eg https://kanban-app.onrender.com)
+- EMAIL_HOST (for nodemailer)
+- EMAIL_USER (for nodemailer)
+- EMAIL_PASS (for nodemailer)
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: 587,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+- JWT_LIFETIME (for JWT eg 5d)
+- JWT_SECRET (for JWT. You can generate one from https://www.allkeysgenerator.com  256bit)
+- MONGO_URI (for mongoose/mongodb driver connection eg mongodb+srv://YourProfile:YourPassword@nodeexpressproject.of3osfz.mongodb.net/KANBAN-TASK-MANAGER?retryWrites=true&w=majority)
+3. npm run setup-production
+4. npm run start
 ```
 
 
