@@ -15,6 +15,7 @@ import notFoundMiddleware from "./middleware/not-found.js";
 import connectDB from "./db/connectDB.js";
 // import xss from "xss-clean";
 import helmet from "helmet";
+import cors from "cors";
 // import rateLimiter from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 
@@ -32,6 +33,7 @@ app.use(express.static(resolve(dirname(__dirname), "./client/dist")));
 app.set("trust proxy", 1);
 // app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.use(express.json());
+app.use(cors());
 app.use(helmet());
 // app.use(xss());
 app.use(mongoSanitize());
@@ -47,7 +49,6 @@ app.get("/manifest.json", (req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/tasks", authenticator, tasksRouter);
 app.get("/api/task/:userId/:taskId/view", viewTask);
-// app.get("/tasks/:userId/:taskId", prompt);
 
 app.get("*", (req, res) => {
   res.sendFile(resolve(dirname(__dirname), "./client/dist", "index.html"));
