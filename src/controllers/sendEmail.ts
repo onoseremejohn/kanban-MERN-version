@@ -24,7 +24,7 @@ const sendEmail: Controller = async (req, res) => {
       ? `${process.env.APP_URL}`
       : "http://localhost:5000";
 
-  const taskLink = `${baseUrl}/tasks/${userId}/${taskId}`;
+  const taskLink = `${baseUrl}/task/${userId}/${taskId}`;
 
   let htmlBody = `
   <p>You have been assigned a new task from ${from} : <strong>${task}</strong></p>
